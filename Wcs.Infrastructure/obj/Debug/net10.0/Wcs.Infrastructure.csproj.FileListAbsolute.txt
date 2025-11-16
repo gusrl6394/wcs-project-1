@@ -8,6 +8,7 @@ D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.Generat
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.AssemblyInfoInputs.cache
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.AssemblyInfo.cs
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.csproj.CoreCompileInputs.cache
+D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.sourcelink.json
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infr.978A0ED1.Up2Date
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\Wcs.Infrastructure.dll
 D:\wcs-project-1\Wcs.Infrastructure\obj\Debug\net10.0\refint\Wcs.Infrastructure.dll

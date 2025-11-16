@@ -5,6 +5,7 @@ D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.GeneratedMSBuildEditorC
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.AssemblyInfoInputs.cache
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.AssemblyInfo.cs
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.csproj.CoreCompileInputs.cache
+D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.sourcelink.json
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.dll
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\refint\Wcs.Domain.dll
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.pdb

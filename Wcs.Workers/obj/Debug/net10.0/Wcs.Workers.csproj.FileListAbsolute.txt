@@ -42,6 +42,7 @@ D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Microsoft.Extensions.Logging.Even
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Microsoft.Extensions.Options.dll
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Microsoft.Extensions.Primitives.dll
+D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\NModbus.dll
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Polly.dll
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\Polly.Extensions.Http.dll
 D:\wcs-project-1\Wcs.Workers\bin\Debug\net10.0\SQLitePCLRaw.batteries_v2.dll
@@ -82,6 +83,7 @@ D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.GeneratedMSBuildEdito
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.AssemblyInfoInputs.cache
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.AssemblyInfo.cs
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.csproj.CoreCompileInputs.cache
+D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.sourcelink.json
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Work.6D6A447A.Up2Date
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\Wcs.Workers.dll
 D:\wcs-project-1\Wcs.Workers\obj\Debug\net10.0\refint\Wcs.Workers.dll

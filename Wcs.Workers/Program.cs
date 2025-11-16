@@ -6,6 +6,8 @@ using Polly;
 using Polly.Extensions.Http;
 using Wcs.Domain;
 using Wcs.Infrastructure;
+using Wcs.Infrastructure.DependencyInjection;
+using Wcs.Workers.Workers; 
 
 var host = new HostBuilder()
     .ConfigureAppConfiguration(cfg => { /* default */ })
@@ -33,6 +35,9 @@ var host = new HostBuilder()
             .WaitAndRetryAsync(3, i => TimeSpan.FromMilliseconds(200 * i)));
 
         services.AddHostedService<CommandProcessor>();
+
+        services.AddModbusTcp(context.Configuration);  // Modbus TCP 서비스 등록
+        services.AddHostedService<ModbusPollingWorker>(); // Modbus 폴링 워커 등록
     })
     .ConfigureLogging(lb => lb.AddSimpleConsole(o => o.TimestampFormat = "HH:mm:ss ")) // 콘솔 로그 포맷
     .UseConsoleLifetime() // Ctrl+C 종료 처리

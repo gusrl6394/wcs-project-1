@@ -402,6 +402,14 @@
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[10.0.0, )"
+            },
+            "Microsoft.Extensions.Options.ConfigurationExtensions": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
+            "NModbus": {
+              "target": "Package",
+              "version": "[3.0.81, )"
             }
           },
           "imports": [
