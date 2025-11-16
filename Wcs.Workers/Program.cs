@@ -11,6 +11,14 @@ using Wcs.Workers.Workers;
 
 var host = new HostBuilder()
     .ConfigureAppConfiguration(cfg => { /* default */ })
+    .ConfigureLogging((context, logging) =>
+    {
+        // ★ EF Core SQL 로그를 Warning 이상만 찍도록 강제
+        logging.AddFilter(
+            "Microsoft.EntityFrameworkCore.Database.Command",
+            LogLevel.Warning
+        );
+    })
     // DI 컨테이너에 서비스 등록
     .ConfigureServices((context, services) =>
     {

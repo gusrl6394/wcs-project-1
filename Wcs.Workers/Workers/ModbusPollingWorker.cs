@@ -46,7 +46,7 @@ namespace Wcs.Workers.Workers
 
             const byte slaveId = 1;
             const ushort startAddress = 0;
-            const ushort points = 10;
+            const ushort points = 16;
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -103,7 +103,7 @@ namespace Wcs.Workers.Workers
                 }
 
                 // 폴링 주기 (필요에 따라 조정)
-                await Task.Delay(TimeSpan.FromMilliseconds(200), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
             }
         }
 
