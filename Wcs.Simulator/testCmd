@@ -1,0 +1,18 @@
+# 상태 확인
+Invoke-RestMethod http://localhost:5088/plc/conveyor/status
+# => {"run":false,"fault":false} (대소문자는 클라이언트 표시 방식에 따라 다를 수 있음)
+
+# START
+Invoke-RestMethod -Method Post `
+  -Uri http://localhost:5088/plc/conveyor/command `
+  -ContentType 'application/json' `
+  -Body (@{ cmd = 'START' } | ConvertTo-Json)
+
+# 상태 다시 확인 (Run=true)
+Invoke-RestMethod http://localhost:5088/plc/conveyor/status
+
+# STOP
+Invoke-RestMethod -Method Post `
+  -Uri http://localhost:5088/plc/conveyor/command `
+  -ContentType 'application/json' `
+  -Body (@{ cmd = 'STOP' } | ConvertTo-Json)
