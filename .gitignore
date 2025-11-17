@@ -1,0 +1,5 @@
+# .NET build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
