@@ -58,6 +58,42 @@ namespace Wcs.Infrastructure.Migrations
                     b.ToTable("Commands");
                 });
 
+            modelBuilder.Entity("Wcs.Domain.Equipment.EquipmentEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("HasFault")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastStatusChangedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SpeedRpm")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TemperatureRaw")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Equipments");
+                });
+
             modelBuilder.Entity("Wcs.Domain.Field.FieldTag", b =>
                 {
                     b.Property<string>("Id")
@@ -126,6 +162,28 @@ namespace Wcs.Infrastructure.Migrations
                             Direction = 0,
                             EquipmentId = "CV01",
                             PropertyName = "IsBlocked"
+                        },
+                        new
+                        {
+                            Id = "CV02_SPEED",
+                            Address = (ushort)0,
+                            DataType = 2,
+                            Description = "CV02 속도 (rpm)",
+                            DeviceId = "PLC02",
+                            Direction = 0,
+                            EquipmentId = "CV02",
+                            PropertyName = "SpeedRpm"
+                        },
+                        new
+                        {
+                            Id = "CV02_TEMP",
+                            Address = (ushort)0,
+                            DataType = 3,
+                            Description = "CV02 온도 (Raw 값)",
+                            DeviceId = "PLC02",
+                            Direction = 0,
+                            EquipmentId = "CV02",
+                            PropertyName = "TemperatureRaw"
                         });
                 });
 #pragma warning restore 612, 618

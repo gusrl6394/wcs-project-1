@@ -17,7 +17,7 @@ using Wcs.Domain.Equipment;
    PropertyName에 맞는 프로퍼티에 태그 값 반영 (리플렉션 사용)
  - 값이 바뀌면 Save
 */
-namespace Wcs.Infrastructure.Services
+namespace Wcs.Infrastructure.Equipment
 {
     /// <summary>
     /// FieldTag + 태그 값들을 도메인 설비 상태에 반영하는 기본 구현.
@@ -144,27 +144,19 @@ namespace Wcs.Infrastructure.Services
 
         private object? ConvertToPropertyType(object rawValue, Type targetType)
         {
-            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+            if (targetType == typeof(bool))
+                return Convert.ToBoolean(rawValue);
 
-            if (underlyingType == typeof(bool))
-            {
-                if (rawValue is bool b) return b;
-                if (rawValue is ushort us) return us != 0;
-                if (rawValue is short s) return s != 0;
-                if (rawValue is int i) return i != 0;
-                if (rawValue is string str)
-                    return str == "1" || bool.Parse(str);
-            }
+            if (targetType == typeof(int))
+                return Convert.ToInt32(rawValue);
 
-            if (underlyingType.IsEnum)
-            {
-                if (rawValue is string es)
-                    return Enum.Parse(underlyingType, es, ignoreCase: true);
+            if (targetType == typeof(double))
+                return Convert.ToDouble(rawValue);
 
-                return Enum.ToObject(underlyingType, rawValue);
-            }
+            if (targetType == typeof(ushort))
+                return Convert.ToUInt16(rawValue);
 
-            return Convert.ChangeType(rawValue, underlyingType);
+            return Convert.ChangeType(rawValue, targetType);
         }
     }
 }

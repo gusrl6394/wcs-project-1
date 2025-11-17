@@ -67,6 +67,31 @@ namespace Wcs.Infrastructure.Persistence
                     Description = "컨베이어1 입구 포토센서",
                     EquipmentId = "CV01",
                     PropertyName = "IsBlocked"            // Equipment.IsBlocked
+                },
+
+                        new FieldTag
+                {
+                    Id = "CV02_SPEED",
+                    DeviceId = "PLC02",
+                    DataType = IoDataType.HoldingRegister,
+                    Direction = IoDirection.Input,
+                    Address = 0,             // 40001
+                    BitIndex = null,
+                    Description = "CV02 속도 (rpm)",
+                    EquipmentId = "CV02",
+                    PropertyName = "SpeedRpm"
+                },
+                new FieldTag
+                {
+                    Id = "CV02_TEMP",
+                    DeviceId = "PLC02",
+                    DataType = IoDataType.InputRegister,
+                    Direction = IoDirection.Input,
+                    Address = 0,             // 30001
+                    BitIndex = null,
+                    Description = "CV02 온도 (Raw 값)",
+                    EquipmentId = "CV02",
+                    PropertyName = "TemperatureRaw"
                 }
             );
         }

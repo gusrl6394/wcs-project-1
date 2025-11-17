@@ -1,3 +1,5 @@
+// 경로: Wcs.Infrastructure/Equipment/EfEquipmentRepository.cs
+
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +10,7 @@ namespace Wcs.Infrastructure.Equipment
 {
     /// <summary>
     /// EF Core 기반 설비 리포지토리 구현.
-    /// WcsDbContext.Equipments 테이블을 통해 설비 상태를 조회/저장한다.
+    /// WcsDbContext.Equipments 테이블을 사용하여 설비 상태를 조회/저장한다.
     /// </summary>
     public class EfEquipmentRepository : IEquipmentRepository
     {
@@ -27,7 +29,6 @@ namespace Wcs.Infrastructure.Equipment
 
         public async Task SaveAsync(EquipmentEntity equipment, CancellationToken ct = default)
         {
-            // 이미 존재하는지 확인
             var exists = await _db.Equipments
                 .AnyAsync(e => e.Id == equipment.Id, ct);
 

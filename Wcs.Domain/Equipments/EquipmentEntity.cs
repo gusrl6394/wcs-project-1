@@ -22,6 +22,10 @@ namespace Wcs.Domain.Equipment
         public bool HasFault { get; private set; }
         public bool IsBlocked { get; private set; }
 
+        // ★ 워드 테스트용 프로퍼티 추가
+        public int SpeedRpm { get; private set; }          // HoldingRegister 예시
+        public int TemperatureRaw { get; private set; }    // InputRegister 예시
+
         public DateTime LastStatusChangedAt { get; private set; }
 
         // 생성자/팩토리 메서드는 필요에 따라…
@@ -63,6 +67,24 @@ namespace Wcs.Domain.Equipment
             if (IsBlocked != value)
             {
                 IsBlocked = value;
+                LastStatusChangedAt = DateTime.UtcNow;
+            }
+        }
+
+        public void SetSpeedRpm(int value)
+        {
+            if (SpeedRpm != value)
+            {
+                SpeedRpm = value;
+                LastStatusChangedAt = DateTime.UtcNow;
+            }
+        }
+
+        public void SetTemperatureRaw(int value)
+        {
+            if (TemperatureRaw != value)
+            {
+                TemperatureRaw = value;
                 LastStatusChangedAt = DateTime.UtcNow;
             }
         }

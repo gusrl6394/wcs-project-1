@@ -102,7 +102,7 @@ namespace Wcs.Workers.Workers
                 }
 
                 // 폴링 주기 (필요에 따라 조정)
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
 
@@ -230,13 +230,12 @@ namespace Wcs.Workers.Workers
             // 4) 도메인 서비스에 전달해서 설비 상태 반영
             if (valueByTagId.Count > 0)
             {
-                var asObjectDict = valueByTagId
-                    .ToDictionary(
+                var asObjectDict = valueByTagId.ToDictionary(
                         kv => kv.Key,
                         kv => (object?)kv.Value);
 
                 // 인터페이스 시그니처와 맞춤
-                await _equipmentStatus.UpdateFromFieldAsync(deviceId, asObjectDict, stoppingToken);
+                await _equipmentStatus.UpdateFromFieldAsync(deviceId, asObjectDict, ct);
             }
 
             // 5) (선택) 로그로 현재 값 확인

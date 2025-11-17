@@ -1,5 +1,7 @@
 # .NET build artifacts
 bin/
 obj/
+Migrations/
 **/bin/
 **/obj/
+**/Migrations/
