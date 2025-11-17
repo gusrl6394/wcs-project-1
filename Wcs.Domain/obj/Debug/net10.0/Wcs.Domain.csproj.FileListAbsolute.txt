@@ -1,12 +1,5 @@
-D:\wcs-project-1\Wcs.Domain\bin\Debug\net10.0\Wcs.Domain.deps.json
-D:\wcs-project-1\Wcs.Domain\bin\Debug\net10.0\Wcs.Domain.dll
-D:\wcs-project-1\Wcs.Domain\bin\Debug\net10.0\Wcs.Domain.pdb
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.GeneratedMSBuildEditorConfig.editorconfig
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.AssemblyInfoInputs.cache
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.AssemblyInfo.cs
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.csproj.CoreCompileInputs.cache
 D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.sourcelink.json
-D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.dll
-D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\refint\Wcs.Domain.dll
-D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\Wcs.Domain.pdb
-D:\wcs-project-1\Wcs.Domain\obj\Debug\net10.0\ref\Wcs.Domain.dll

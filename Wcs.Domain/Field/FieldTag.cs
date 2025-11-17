@@ -2,10 +2,10 @@ namespace Wcs.Domain.Field
 {
     public enum IoDataType
     {
-        Coil,
-        DiscreteInput,
-        HoldingRegister,
-        InputRegister
+        Coil,           // 0xxxx
+        DiscreteInput,  // 1xxxx
+        HoldingRegister,// 4xxxx
+        InputRegister   // 3xxxx
     }
 
     public enum IoDirection
@@ -29,5 +29,10 @@ namespace Wcs.Domain.Field
         public string Description { get; init; } = string.Empty;
         public string? EquipmentId { get; init; }          // 도메인 설비랑 연결하고 싶으면
         public string? PropertyName { get; init; }         // "IsRunning", "HasError" 등
+    }
+
+    public interface IFieldTagRepository
+    {
+        Task<IReadOnlyList<FieldTag>> GetAllAsync(CancellationToken ct = default);
     }
 }

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Sockets;
-using Wcs.Domain.Field; // IFieldBusChannel 등
+using NModbus;
+using Wcs.Domain.Field;
+using Wcs.Domain.Equipment;
 
 namespace Wcs.Workers.Workers
 {
@@ -22,19 +24,19 @@ namespace Wcs.Workers.Workers
     {
         private readonly ILogger<ModbusPollingWorker> _logger;
         private readonly IFieldBusChannel _channel;
-        // private readonly IFieldTagRepository _tagRepository;            // 태그 메타데이터
-        // private readonly IEquipmentStatusService _equipmentStatus;      // 도메인 서비스
+        private readonly IFieldTagRepository _tagRepository;            // 태그 메타데이터
+        private readonly IEquipmentStatusService _equipmentStatus;      // 도메인 서비스
 
         public ModbusPollingWorker(
             ILogger<ModbusPollingWorker> logger,
-            IFieldBusChannel channel)
-            // IFieldTagRepository tagRepository,
-            // IEquipmentStatusService equipmentStatus)
+            IFieldBusChannel channel,
+            IFieldTagRepository tagRepository,
+            IEquipmentStatusService equipmentStatus)
         {
             _logger = logger;
             _channel = channel;
-            // _tagRepository = tagRepository;
-            // _equipmentStatus = equipmentStatus;
+            _tagRepository = tagRepository;
+            _equipmentStatus = equipmentStatus;
         }
 
         /// <summary>
@@ -46,12 +48,13 @@ namespace Wcs.Workers.Workers
 
             const byte slaveId = 1;
             const ushort startAddress = 0;
-            const ushort points = 16;
+            const ushort points = 10;
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
+                    /*
                     // ★ 여기 하드 코딩 부분
                     var coils = await _channel.ReadCoilsAsync(slaveId, startAddress, points, stoppingToken);
 
@@ -61,7 +64,20 @@ namespace Wcs.Workers.Workers
                     _logger.LogInformation("Coils (slave:{Slave}, addr:{Addr}, count:{Count}) = {Coils}",
                         slaveId, startAddress, points, coilsText);
 
-                    /*
+                    var inputs = await _channel.ReadDiscreteInputsAsync(slaveId, startAddress, points, stoppingToken);
+
+                    var text = string.Join(",", inputs.Select(x => x ? "1" : "0"));
+
+                            _logger.LogInformation(
+                        "[DI] slave:{Slave}, ref:1{RefStart:D4}~1{RefEnd:D4} (offset {Offset}~{OffsetEnd}) = {Values}",
+                        slaveId,
+                        startAddress + 1,                // 0 → 1, 1 → 2 ...
+                        startAddress + points,
+                        startAddress,
+                        startAddress + points - 1,
+                        text);
+                    */
+
                     // 1) Tag 목록 (예: CV01 관련 태그들) 가져오기
                     var tags = await _tagRepository.GetAllAsync(stoppingToken);
 
@@ -74,8 +90,7 @@ namespace Wcs.Workers.Workers
                     {
                         // 2) DeviceId + SlaveId + DataType 별로 그룹핑해서 효율적으로 읽기
                         //    (여기서는 FieldTag에 SlaveId 속성이 있다고 가정)
-                        var groups = tags
-                            .GroupBy(t => new { t.DeviceId, t.SlaveId, t.DataType });
+                        var groups = tags.GroupBy(t => new { t.DeviceId, t.SlaveId , t.DataType });
 
                         foreach (var group in groups)
                         {
@@ -86,7 +101,6 @@ namespace Wcs.Workers.Workers
                                                  stoppingToken);
                         }
                     }
-                    */
                 }
                 catch (SocketException)
                 {
@@ -95,6 +109,18 @@ namespace Wcs.Workers.Workers
                         "Modbus 서버에 연결할 수 없습니다. (슬레이브 서버가 꺼져 있거나, 포트 502가 닫혀 있음). 계속 재시도합니다.");
 
                     // 바로 다시 예외를 던지지 않고, 지정된 주기 뒤에 재시도
+                }
+                catch (IOException ex) when (ex.InnerException is SocketException)
+                {
+                    _logger.LogWarning(
+                        "Modbus 통신 중 연결이 끊어졌습니다. (전송 중 소켓 연결 종료). 계속 재시도합니다.");
+                }
+                catch (SlaveException ex)
+                {
+                    _logger.LogWarning(
+                        "Modbus 슬레이브에서 오류 응답을 보냈습니다. FunctionCode={FunctionCode}, ExceptionCode={ExceptionCode}",
+                        ex.FunctionCode, ex.SlaveExceptionCode);
+                    // 여기서는 시스템 죽이면 안 되고, 그냥 로그만 남기고 다음 주기에서 다시 시도
                 }
                 catch (Exception ex)
                 {
@@ -111,11 +137,11 @@ namespace Wcs.Workers.Workers
         /// 같은 Device + SlaveId + DataType에 속한 태그들을 한 번에 읽고
         /// IEquipmentStatusService에 반영하는 함수.
         /// </summary>
-        /*
+
         private async Task PollGroupAsync(
             string deviceId,
             byte slaveId,
-            IoDataType dataType,
+            /*IoDataType dataType,*/
             List<FieldTag> tags,
             CancellationToken ct)
         {
@@ -219,6 +245,5 @@ namespace Wcs.Workers.Workers
                 await _equipmentStatus.UpdateFromFieldAsync(deviceId, valueByTagId, ct);
             }
         }
-        */
     }
 }
