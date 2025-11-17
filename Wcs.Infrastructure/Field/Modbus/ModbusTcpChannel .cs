@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using System.Threading;
 using NModbus;
 using Wcs.Domain.Field;
 
@@ -11,6 +12,9 @@ namespace Wcs.Infrastructure.Field.Modbus
         private readonly int _port;
         private TcpClient _tcpClient = null!;
         private IModbusMaster _master = null!;
+
+        // ★ 추가: 동시 접근 막기 위한 세마포어
+        private readonly SemaphoreSlim _sync = new SemaphoreSlim(1, 1);
 
 
         public ModbusTcpChannel(string ip, int port = 502)
@@ -49,85 +53,114 @@ namespace Wcs.Infrastructure.Field.Modbus
 
         // ---------------- READ ----------------
 
-        public Task<bool[]> ReadCoilsAsync(
+        public async Task<bool[]> ReadCoilsAsync(
             byte slaveId,
             ushort startAddress,
             ushort numberOfPoints,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                return _master.ReadCoils(slaveId, startAddress, numberOfPoints);
-            }, ct);
+                return _master!.ReadCoils(slaveId, startAddress, numberOfPoints);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
-        public Task<bool[]> ReadDiscreteInputsAsync(
+        public async Task<bool[]> ReadDiscreteInputsAsync(
             byte slaveId,
             ushort startAddress,
             ushort numberOfPoints,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                // NModbus에서 Discrete Inputs는 ReadInputs
-                return _master.ReadInputs(slaveId, startAddress, numberOfPoints);
-            }, ct);
+                return _master!.ReadInputs(slaveId, startAddress, numberOfPoints);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
-        public Task<ushort[]> ReadHoldingRegistersAsync(
+        public async Task<ushort[]> ReadHoldingRegistersAsync(
             byte slaveId,
             ushort startAddress,
             ushort numberOfPoints,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                return _master.ReadHoldingRegisters(slaveId, startAddress, numberOfPoints);
-            }, ct);
+                return _master!.ReadHoldingRegisters(slaveId, startAddress, numberOfPoints);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
-        public Task<ushort[]> ReadInputRegistersAsync(
+        public async Task<ushort[]> ReadInputRegistersAsync(
             byte slaveId,
             ushort startAddress,
             ushort numberOfPoints,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                return _master.ReadInputRegisters(slaveId, startAddress, numberOfPoints);
-            }, ct);
+                return _master!.ReadInputRegisters(slaveId, startAddress, numberOfPoints);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
         // ---------------- WRITE ----------------
 
-        public Task WriteSingleCoilAsync(
+        public async Task WriteSingleCoilAsync(
             byte slaveId,
             ushort address,
             bool value,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                _master.WriteSingleCoil(slaveId, address, value);
-            }, ct);
+                _master!.WriteSingleCoil(slaveId, address, value);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
-        public Task WriteSingleRegisterAsync(
+        public async Task WriteSingleRegisterAsync(
             byte slaveId,
             ushort address,
             ushort value,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await _sync.WaitAsync(ct);
+            try
             {
                 EnsureConnected();
-                _master.WriteSingleRegister(slaveId, address, value);
-            }, ct);
+                _master!.WriteSingleRegister(slaveId, address, value);
+            }
+            finally
+            {
+                _sync.Release();
+            }
         }
 
         // ---------------- DISPOSE ----------------
