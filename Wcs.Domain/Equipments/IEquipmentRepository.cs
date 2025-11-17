@@ -9,7 +9,7 @@ namespace Wcs.Domain.Equipment
 {
     public interface IEquipmentRepository
     {
-        Task<Equipment?> GetByIdAsync(string equipmentId, CancellationToken ct = default);
-        Task SaveAsync(Equipment equipment, CancellationToken ct = default);
+        Task<EquipmentEntity?> GetByIdAsync(string equipmentId, CancellationToken ct = default);
+        Task SaveAsync(EquipmentEntity equipment, CancellationToken ct = default);
     }
 }

@@ -25,8 +25,8 @@ namespace Wcs.Infrastructure.Services
     public class EquipmentStatusService : IEquipmentStatusService
     {
         private readonly ILogger<EquipmentStatusService> _logger;
-        private readonly IFieldTagRepository _fieldTagRepository;
-        private readonly IEquipmentRepository _equipmentRepository;
+        private readonly IFieldTagRepository _fieldTags;
+        private readonly IEquipmentRepository _equipments ;
 
         public EquipmentStatusService(
             ILogger<EquipmentStatusService> logger,
@@ -34,33 +34,72 @@ namespace Wcs.Infrastructure.Services
             IEquipmentRepository equipmentRepository)
         {
             _logger = logger;
-            _fieldTagRepository = fieldTagRepository;
-            _equipmentRepository = equipmentRepository;
+            _fieldTags = fieldTagRepository;
+            _equipments  = equipmentRepository;
         }
 
         public async Task UpdateFromFieldAsync(
             string deviceId,
-            IReadOnlyDictionary<string, object?> _fieldTags,
+            IReadOnlyDictionary<string, object?> boolTags,
             CancellationToken ct = default)
         {
-            if (_fieldTags == null || _fieldTags.Count == 0)
-            {
-                _logger.LogDebug(
-                    "UpdateFromFieldAsync 호출됐지만 tagValues가 비어 있습니다. deviceId={DeviceId}", deviceId);
+            if (boolTags.Count == 0)
                 return;
-            }
 
-            // 1) 모든 태그 메타데이터 조회 후, Id 기준으로 Dictionary화
+            // 1) 태그 메타데이터 읽기
             var allTags = await _fieldTags.GetAllAsync(ct);
             var tagById = allTags.ToDictionary(t => t.Id);
 
-            // 2) 이번에 들어온 태그들 중, EquipmentId + PropertyName 이 있는 것만 필터
-            //    설비별로 묶기 위해 equipmentId -> Equipment 캐시 사용
-            var equipmentCache = new Dictionary<string, Equipment>();
+            // 2) 설비별 캐시
+            var equipmentCache = new Dictionary<string, EquipmentEntity>();
+
+            foreach (var kv in boolTags)
+            {
+                var tagId = kv.Key;
+                var value = kv.Value;
+
+                if (!tagById.TryGetValue(tagId, out var tag))
+                {
+                    _logger.LogWarning("FieldTag 메타데이터를 찾을 수 없습니다. TagId={TagId}", tagId);
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(tag.EquipmentId) ||
+                    string.IsNullOrWhiteSpace(tag.PropertyName))
+                    continue; // 설비와 연결되지 않은 태그는 스킵
+
+                var equipmentId = tag.EquipmentId!;
+
+                if (!equipmentCache.TryGetValue(equipmentId, out var equipment))
+                {
+                    equipment = await _equipments.GetByIdAsync(equipmentId, ct)
+                        ?? new EquipmentEntity(
+                            id: equipmentId,
+                            name: equipmentId,
+                            deviceId: deviceId
+                        );
+
+                    equipmentCache[equipmentId] = equipment;
+                }
+            }
+
+            // 4) 변경된 설비들 저장
+            foreach (var equipment in equipmentCache.Values)
+            {
+                await _equipments.SaveAsync(equipment, ct);
+
+                _logger.LogInformation(
+                    "[EQUIP][{DeviceId}] {EquipmentId} 상태 업데이트: Run={IsRunning}, Fault={HasFault}, Blocked={IsBlocked}",
+                    deviceId,
+                    equipment.Id,
+                    equipment.IsRunning,
+                    equipment.HasFault,
+                    equipment.IsBlocked);
+            }
         }
 
         private bool TryApplyProperty(
-            Equipment equipment,
+            EquipmentEntity equipment,
             string propertyName,
             object? rawValue,
             out bool changed)

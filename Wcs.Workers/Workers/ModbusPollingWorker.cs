@@ -230,10 +230,13 @@ namespace Wcs.Workers.Workers
             // 4) 도메인 서비스에 전달해서 설비 상태 반영
             if (valueByTagId.Count > 0)
             {
-                await _equipmentStatus.UpdateFromFieldAsync(
-                    deviceId,
-                    valueByTagId,
-                    ct);
+                var asObjectDict = valueByTagId
+                    .ToDictionary(
+                        kv => kv.Key,
+                        kv => (object?)kv.Value);
+
+                // 인터페이스 시그니처와 맞춤
+                await _equipmentStatus.UpdateFromFieldAsync(deviceId, asObjectDict, stoppingToken);
             }
 
             // 5) (선택) 로그로 현재 값 확인

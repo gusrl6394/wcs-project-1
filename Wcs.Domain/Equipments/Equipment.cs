@@ -10,10 +10,12 @@ namespace Wcs.Domain.Equipment
     /// <summary>
     /// 도메인 설비(컨베이어, 리프트 등)의 상태를 표현하는 엔티티 예시.
     /// </summary>
-    public class Equipment
+    public class EquipmentEntity
     {
         public string Id { get; private set; } = default!;
         public string Name { get; private set; } = default!;
+        
+        public string DeviceId { get; private set; } = default!;
 
         // 상태 값 예시들
         public bool IsRunning { get; private set; }
@@ -23,10 +25,18 @@ namespace Wcs.Domain.Equipment
         public DateTime LastStatusChangedAt { get; private set; }
 
         // 생성자/팩토리 메서드는 필요에 따라…
-        public Equipment(string id, string name)
+        public EquipmentEntity(string id, string name)
         {
             Id = id;
             Name = name;
+            LastStatusChangedAt = DateTime.UtcNow;
+        }
+
+        public EquipmentEntity(string id, string name, string deviceId)
+        {
+            Id = id;
+            Name = name;
+            DeviceId = deviceId;
             LastStatusChangedAt = DateTime.UtcNow;
         }
 
