@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Wcs.Domain;
 using Wcs.Domain.Field;
 using Wcs.Domain.Equipment;
-using Wcs.Domain.Command;
 
 namespace Wcs.Infrastructure.Persistence
 {

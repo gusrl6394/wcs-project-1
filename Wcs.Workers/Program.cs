@@ -48,6 +48,7 @@ var host = new HostBuilder()
         services.AddEquipmentServices();
         services.AddHostedService<ModbusPollingWorker>(); // 코일 읽기 Worker
         services.AddHostedService<ModbusWriteTestWorker>(); // 코일 쓰기 Worker
+        services.AddFieldTags(); // FieldTag 관련 서비스 등록
     })
     .ConfigureLogging(lb => lb.AddSimpleConsole(o => o.TimestampFormat = "HH:mm:ss ")) // 콘솔 로그 포맷
     .UseConsoleLifetime() // Ctrl+C 종료 처리
