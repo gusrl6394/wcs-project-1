@@ -18,6 +18,9 @@ namespace Wcs.Infrastructure.Persistence
         // ★ FieldTag DbSet 추가
         public DbSet<FieldTag> FieldTags { get; set; } = default!;
 
+        // ★ 설비 엔티티 DbSet 추가
+        public DbSet<Equipment> Equipments { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

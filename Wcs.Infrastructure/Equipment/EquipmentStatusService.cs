@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Wcs.Domain.Field;
 using Wcs.Domain.Equipment;
-using EquipmentEntity = Wcs.Domain.Equipment.Equipment;
 
 
 /*
@@ -27,8 +26,8 @@ namespace Wcs.Infrastructure.Services
     {
         private readonly ILogger<EquipmentStatusService> _logger;
         private readonly IFieldTagRepository _fieldTagRepository;
-        // private readonly IEquipmentRepository _equipmentRepository;
-        /*
+        private readonly IEquipmentRepository _equipmentRepository;
+
         public EquipmentStatusService(
             ILogger<EquipmentStatusService> logger,
             IFieldTagRepository fieldTagRepository,
@@ -38,114 +37,30 @@ namespace Wcs.Infrastructure.Services
             _fieldTagRepository = fieldTagRepository;
             _equipmentRepository = equipmentRepository;
         }
-        */
-        public EquipmentStatusService(
-            ILogger<EquipmentStatusService> logger,
-            IFieldTagRepository fieldTagRepository)
-        {
-            _logger = logger;
-            _fieldTagRepository = fieldTagRepository;
-        }
 
-        public Task UpdateFromFieldAsync(
+        public async Task UpdateFromFieldAsync(
             string deviceId,
-            IReadOnlyDictionary<string, object?> tagValues,
+            IReadOnlyDictionary<string, object?> _fieldTags,
             CancellationToken ct = default)
         {
-            // if (tagValues == null || tagValues.Count == 0)
-            // {
-            //     _logger.LogDebug(
-            //         "UpdateFromFieldAsync 호출됐지만 tagValues가 비어 있습니다. deviceId={DeviceId}", deviceId);
-            //     return;
-            // }
-
-            foreach (var kv in tagValues)
-            {
-                var tagId = kv.Key;
-                var value = kv.Value;
-
-                _logger.LogInformation(
-                    "[EQUIP][{DeviceId}] Tag {TagId} = {Value}",
-                    deviceId,
-                    tagId,
-                    value);
-            }
-
-            return Task.CompletedTask;
-
-            /*
-            // 1) 해당 deviceId + Input + tagValues에 포함된 태그만 필터
-            var allTags = await _fieldTagRepository.GetAllAsync(ct);
-
-            var tags = allTags
-                .Where(t =>
-                    t.DeviceId == deviceId &&
-                    t.Direction == IoDirection.Input &&
-                    !string.IsNullOrWhiteSpace(t.EquipmentId) &&
-                    !string.IsNullOrWhiteSpace(t.PropertyName) &&
-                    tagValues.ContainsKey(t.Id))
-                .ToList();
-
-            if (tags.Count == 0)
+            if (_fieldTags == null || _fieldTags.Count == 0)
             {
                 _logger.LogDebug(
-                    "deviceId={DeviceId} 에 대해 매핑 가능한 Input 태그가 없습니다. (tagValues count={Count})",
-                    deviceId, tagValues.Count);
+                    "UpdateFromFieldAsync 호출됐지만 tagValues가 비어 있습니다. deviceId={DeviceId}", deviceId);
                 return;
             }
 
-            // 2) EquipmentId 별로 그룹
-            var groupsByEquipment = tags
-                .GroupBy(t => t.EquipmentId!) // 위에서 null 아닌 것만 필터 했음
-                .ToList();
+            // 1) 모든 태그 메타데이터 조회 후, Id 기준으로 Dictionary화
+            var allTags = await _fieldTags.GetAllAsync(ct);
+            var tagById = allTags.ToDictionary(t => t.Id);
 
-            foreach (var eqGroup in groupsByEquipment)
-            {
-                var equipmentId = eqGroup.Key;
-                var equipment = await _equipmentRepository.GetByIdAsync(equipmentId, ct);
-
-                if (equipment == null)
-                {
-                    _logger.LogWarning(
-                        "EquipmentId={EquipmentId} 를 찾을 수 없습니다. deviceId={DeviceId}",
-                        equipmentId, deviceId);
-                    continue;
-                }
-
-                bool changed = false;
-
-                foreach (var tag in eqGroup)
-                {
-                    var rawValue = tagValues[tag.Id];
-                    var propertyName = tag.PropertyName!;
-
-                    if (!TryApplyProperty(equipment, propertyName, rawValue, out bool propertyChanged))
-                    {
-                        _logger.LogDebug(
-                            "EquipmentId={EquipmentId}, TagId={TagId}, PropertyName={PropertyName} 매핑 실패 (타입 불일치 또는 프로퍼티 없음)",
-                            equipmentId, tag.Id, propertyName);
-                        continue;
-                    }
-
-                    if (propertyChanged)
-                    {
-                        changed = true;
-                        _logger.LogDebug(
-                            "EquipmentId={EquipmentId}, Property={PropertyName} 태그 {TagId} 로부터 업데이트. 값={Value}",
-                            equipmentId, propertyName, tag.Id, rawValue);
-                    }
-                }
-
-                if (changed)
-                {
-                    await _equipmentRepository.SaveAsync(equipment, ct);
-                }
-            }
-            */
+            // 2) 이번에 들어온 태그들 중, EquipmentId + PropertyName 이 있는 것만 필터
+            //    설비별로 묶기 위해 equipmentId -> Equipment 캐시 사용
+            var equipmentCache = new Dictionary<string, Equipment>();
         }
 
         private bool TryApplyProperty(
-            EquipmentEntity  equipment,
+            Equipment equipment,
             string propertyName,
             object? rawValue,
             out bool changed)
