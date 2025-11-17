@@ -1,5 +1,10 @@
 using System;
 
+/*
+ - 실제 WCS 도메인이 보는 “설비 상태”를 표현
+ - 태그 값이 이 엔티티의 프로퍼티로 매핑됨
+   (예: RUN_FB → IsRunning, FAULT → HasFault 등)
+*/
 namespace Wcs.Domain.Equipment
 {
     /// <summary>

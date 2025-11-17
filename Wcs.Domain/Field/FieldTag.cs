@@ -1,3 +1,9 @@
+/*
+ - IO 태그 메타데이터 정의
+ - 어떤 태그가 어느 디바이스(DeviceId), 어떤 타입(IoDataType), 방향(IoDirection), 주소(Address)에 있는지 표현
+ - 나중에 이 태그를 설비(EquipmentId) + PropertyName에 연결해서 도메인과 매핑
+*/
+
 namespace Wcs.Domain.Field
 {
     public enum IoDataType

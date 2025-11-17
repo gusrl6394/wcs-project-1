@@ -1,0 +1,23 @@
+/*
+// ★ 여기 하드 코딩 부분
+var coils = await _channel.ReadCoilsAsync(slaveId, startAddress, points, stoppingToken);
+
+// bool[] 그대로 찍으면 "True,False..." 이런식이라, 1/0으로 바꿔서 찍음
+var coilsText = string.Join(",", coils.Select(c => c ? "1" : "0"));
+
+_logger.LogInformation("Coils (slave:{Slave}, addr:{Addr}, count:{Count}) = {Coils}",
+    slaveId, startAddress, points, coilsText);
+
+var inputs = await _channel.ReadDiscreteInputsAsync(slaveId, startAddress, points, stoppingToken);
+
+var text = string.Join(",", inputs.Select(x => x ? "1" : "0"));
+
+        _logger.LogInformation(
+    "[DI] slave:{Slave}, ref:1{RefStart:D4}~1{RefEnd:D4} (offset {Offset}~{OffsetEnd}) = {Values}",
+    slaveId,
+    startAddress + 1,                // 0 → 1, 1 → 2 ...
+    startAddress + points,
+    startAddress,
+    startAddress + points - 1,
+    text);
+*/

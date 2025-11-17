@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
+/*
+ - Worker가 읽어온 태그 값(TagId → Value) 을 받아서
+ - 설비 상태(Equipment)에 반영하는 도메인 서비스 인터페이스
+ - Domain 프로젝트에는 인터페이스만 두고, 구현은 Infrastructure 프로젝트에 둠
+*/
 namespace Wcs.Domain.Equipment
 {
     /// <summary>

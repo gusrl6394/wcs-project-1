@@ -14,11 +14,6 @@ namespace Wcs.Workers.Workers
     /// <summary>
     /// Modbus TCP를 통해 주기적으로 태그 값을 읽어와
     /// 도메인 설비 상태(IEquipmentStatusService)에 반영하는 Worker.
-    /// 
-    /// 가장 단순한 버전:
-    /// - slaveId = 1
-    /// - startAddress = 0
-    /// - numberOfPoints = 10
     /// </summary>
     public class ModbusPollingWorker : BackgroundService
     {
@@ -47,58 +42,36 @@ namespace Wcs.Workers.Workers
             _logger.LogInformation("Modbus polling worker started.");
 
             const byte slaveId = 1;
-            const ushort startAddress = 0;
-            const ushort points = 10;
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    /*
-                    // ★ 여기 하드 코딩 부분
-                    var coils = await _channel.ReadCoilsAsync(slaveId, startAddress, points, stoppingToken);
+                    var allTags = await _tagRepository.GetAllAsync(stoppingToken);
 
-                    // bool[] 그대로 찍으면 "True,False..." 이런식이라, 1/0으로 바꿔서 찍음
-                    var coilsText = string.Join(",", coils.Select(c => c ? "1" : "0"));
+                    // 1) 입력 방향 태그만 폴링 (Output은 명령/Write 용)
+                    var inputTags = allTags
+                        .Where(t => t.Direction == IoDirection.Input)
+                        .ToList();
 
-                    _logger.LogInformation("Coils (slave:{Slave}, addr:{Addr}, count:{Count}) = {Coils}",
-                        slaveId, startAddress, points, coilsText);
-
-                    var inputs = await _channel.ReadDiscreteInputsAsync(slaveId, startAddress, points, stoppingToken);
-
-                    var text = string.Join(",", inputs.Select(x => x ? "1" : "0"));
-
-                            _logger.LogInformation(
-                        "[DI] slave:{Slave}, ref:1{RefStart:D4}~1{RefEnd:D4} (offset {Offset}~{OffsetEnd}) = {Values}",
-                        slaveId,
-                        startAddress + 1,                // 0 → 1, 1 → 2 ...
-                        startAddress + points,
-                        startAddress,
-                        startAddress + points - 1,
-                        text);
-                    */
-
-                    // 1) Tag 목록 (예: CV01 관련 태그들) 가져오기
-                    var tags = await _tagRepository.GetAllAsync(stoppingToken);
-
-                    if (tags == null || tags.Count == 0)
+                    if (inputTags.Count == 0)
                     {
-                        _logger.LogDebug("No field tags configured. Skipping polling.");
+                        _logger.LogDebug("입력(Input) 태그가 없습니다. 다음 주기에 다시 시도합니다.");
                     }
-
                     else
                     {
-                        // 2) DeviceId + SlaveId + DataType 별로 그룹핑해서 효율적으로 읽기
-                        //    (여기서는 FieldTag에 SlaveId 속성이 있다고 가정)
-                        var groups = tags.GroupBy(t => new { t.DeviceId, t.SlaveId , t.DataType });
+                        // 2) DeviceId + IoDataType 기준으로 그룹핑
+                        var groups = inputTags
+                            .GroupBy(t => new { t.DeviceId, t.DataType });
 
                         foreach (var group in groups)
                         {
-                            await PollGroupAsync(group.Key.DeviceId,
-                                                 group.Key.SlaveId,
-                                                 group.Key.DataType,
-                                                 group.ToList(),
-                                                 stoppingToken);
+                            await PollGroupAsync(
+                                group.Key.DeviceId,
+                                slaveId,
+                                group.Key.DataType,
+                                group.ToList(),
+                                stoppingToken);
                         }
                     }
                 }
@@ -129,26 +102,24 @@ namespace Wcs.Workers.Workers
                 }
 
                 // 폴링 주기 (필요에 따라 조정)
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             }
         }
 
         /// <summary>
-        /// 같은 Device + SlaveId + DataType에 속한 태그들을 한 번에 읽고
-        /// IEquipmentStatusService에 반영하는 함수.
+        /// 같은 DeviceId + SlaveId + IoDataType에 속한 태그들을
+        /// 한 번의 Modbus 호출로 읽어와서 태그별 값으로 매핑.
         /// </summary>
-
         private async Task PollGroupAsync(
             string deviceId,
             byte slaveId,
-            /*IoDataType dataType,*/
+            IoDataType dataType,
             List<FieldTag> tags,
             CancellationToken ct)
         {
             if (tags.Count == 0)
                 return;
 
-            // Modbus 주소 범위 계산
             var minAddress = tags.Min(t => t.Address);
             var maxAddress = tags.Max(t => t.Address);
             var numberOfPoints = (ushort)(maxAddress - minAddress + 1);
@@ -157,92 +128,135 @@ namespace Wcs.Workers.Workers
                 "Polling Device={DeviceId}, SlaveId={SlaveId}, Type={Type}, AddressRange={Start}-{End}",
                 deviceId, slaveId, dataType, minAddress, maxAddress);
 
-            // 1) Modbus 값 읽기
             bool[]? boolValues = null;
             ushort[]? regValues = null;
 
-            switch (dataType)
+            try
             {
-                case IoDataType.Coil:
-                    boolValues = await _channel.ReadCoilsAsync(slaveId, minAddress, numberOfPoints, ct);
-                    break;
+                switch (dataType)
+                {
+                    case IoDataType.Coil:
+                        boolValues = await _channel.ReadCoilsAsync(
+                            slaveId, minAddress, numberOfPoints, ct);
+                        break;
 
-                case IoDataType.DiscreteInput:
-                    boolValues = await _channel.ReadDiscreteInputsAsync(slaveId, minAddress, numberOfPoints, ct);
-                    break;
+                    case IoDataType.DiscreteInput:
+                        boolValues = await _channel.ReadDiscreteInputsAsync(
+                            slaveId, minAddress, numberOfPoints, ct);
+                        break;
 
-                case IoDataType.HoldingRegister:
-                    regValues = await _channel.ReadHoldingRegistersAsync(slaveId, minAddress, numberOfPoints, ct);
-                    break;
+                    case IoDataType.HoldingRegister:
+                        regValues = await _channel.ReadHoldingRegistersAsync(
+                            slaveId, minAddress, numberOfPoints, ct);
+                        break;
 
-                case IoDataType.InputRegister:
-                    regValues = await _channel.ReadInputRegistersAsync(slaveId, minAddress, numberOfPoints, ct);
-                    break;
+                    case IoDataType.InputRegister:
+                        regValues = await _channel.ReadInputRegistersAsync(
+                            slaveId, minAddress, numberOfPoints, ct);
+                        break;
 
-                default:
-                    _logger.LogWarning("Unsupported IoDataType: {Type}", dataType);
-                    return;
+                    default:
+                        _logger.LogWarning("지원하지 않는 IoDataType: {Type}", dataType);
+                        return;
+                }
+            }
+            catch (SlaveException ex)
+            {
+                _logger.LogWarning(
+                    "Modbus 슬레이브에서 오류 응답. Device={DeviceId}, SlaveId={SlaveId}, Type={Type}, " +
+                    "Start={Start}, Count={Count}, FunctionCode={FunctionCode}, ExceptionCode={ExceptionCode}",
+                    deviceId, slaveId, dataType,
+                    minAddress, numberOfPoints,
+                    ex.FunctionCode, ex.SlaveExceptionCode);
+                return;
+            }
+            catch (SocketException)
+            {
+                _logger.LogWarning(
+                    "Modbus 서버에 연결할 수 없습니다. Device={DeviceId}, SlaveId={SlaveId}. 계속 재시도합니다.",
+                    deviceId, slaveId);
+                return;
             }
 
-            // 2) 태그별로 값을 해석 (비트 인덱스 반영 포함)
+            // 3) TagId -> Value 매핑
             var valueByTagId = new Dictionary<string, object?>();
 
             foreach (var tag in tags)
             {
                 var offset = tag.Address - minAddress;
+                if (offset < 0)
+                    continue;
 
-                object? value = null;
-
-                if (boolValues != null)
+                switch (dataType)
                 {
-                    // Coil / DiscreteInput
-                    if (offset < 0 || offset >= boolValues.Length)
-                    {
-                        _logger.LogWarning(
-                            "Bool index out of range. Tag={TagId}, Address={Address}, Offset={Offset}",
-                            tag.Id, tag.Address, offset);
-                        continue;
-                    }
+                    case IoDataType.Coil:
+                    case IoDataType.DiscreteInput:
+                        if (boolValues == null || offset >= boolValues.Length)
+                        {
+                            _logger.LogWarning(
+                                "Bool index out of range. Tag={TagId}, Address={Address}, Offset={Offset}, Length={Length}",
+                                tag.Id, tag.Address, offset, boolValues?.Length ?? 0);
+                            continue;
+                        }
 
-                    var raw = boolValues[offset];
+                        valueByTagId[tag.Id] = boolValues[offset];
+                        break;
 
-                    // BitIndex가 있으면 워드의 특정 비트로 해석하는 경우도 있지만
-                    // bool 배열에서는 이미 비트 단위이므로 BitIndex는 무시하거나, 필요시 다른 의미로 사용
-                    value = raw;
+                    case IoDataType.HoldingRegister:
+                    case IoDataType.InputRegister:
+                        if (regValues == null || offset >= regValues.Length)
+                        {
+                            _logger.LogWarning(
+                                "Register index out of range. Tag={TagId}, Address={Address}, Offset={Offset}, Length={Length}",
+                                tag.Id, tag.Address, offset, regValues?.Length ?? 0);
+                            continue;
+                        }
+
+                        var raw = regValues[offset];
+
+                        if (tag.BitIndex.HasValue)
+                        {
+                            var bit = (raw & (1 << tag.BitIndex.Value)) != 0;
+                            valueByTagId[tag.Id] = bit;
+                        }
+                        else
+                        {
+                            valueByTagId[tag.Id] = raw; // ushort 그대로
+                        }
+                        break;
                 }
-                else if (regValues != null)
-                {
-                    // Holding/Input Register
-                    if (offset < 0 || offset >= regValues.Length)
-                    {
-                        _logger.LogWarning(
-                            "Register index out of range. Tag={TagId}, Address={Address}, Offset={Offset}",
-                            tag.Id, tag.Address, offset);
-                        continue;
-                    }
-
-                    var raw = regValues[offset];
-
-                    if (tag.BitIndex.HasValue)
-                    {
-                        // 레지스터 안의 특정 비트를 태그로 사용하는 경우
-                        var bit = (raw & (1 << tag.BitIndex.Value)) != 0;
-                        value = bit;
-                    }
-                    else
-                    {
-                        // 그냥 레지스터 값 자체 사용 (ushort)
-                        value = raw;
-                    }
-                }
-
-                valueByTagId[tag.Id] = value;
             }
 
-            // 3) 도메인 서비스에 설비 상태 반영
+            // 4) 도메인 서비스에 전달해서 설비 상태 반영
             if (valueByTagId.Count > 0)
             {
-                await _equipmentStatus.UpdateFromFieldAsync(deviceId, valueByTagId, ct);
+                await _equipmentStatus.UpdateFromFieldAsync(
+                    deviceId,
+                    valueByTagId,
+                    ct);
+            }
+
+            // 5) (선택) 로그로 현재 값 확인
+            if (valueByTagId.Count > 0)
+            {
+                var refPrefix = dataType switch
+                {
+                    IoDataType.Coil           => "0",
+                    IoDataType.DiscreteInput  => "1",
+                    IoDataType.InputRegister  => "3",
+                    IoDataType.HoldingRegister=> "4",
+                    _                         => ""
+                };
+
+                var logText = string.Join(", ",
+                    tags.Select(t =>
+                    {
+                        valueByTagId.TryGetValue(t.Id, out var v);
+                        var refAddr = t.Address + 1; // 0 -> 00001
+                        return $"{t.Id}({refPrefix}{refAddr:D4})={v}";
+                    }));
+
+                _logger.LogInformation("[POLL][{Device}] {Values}", deviceId, logText);
             }
         }
     }

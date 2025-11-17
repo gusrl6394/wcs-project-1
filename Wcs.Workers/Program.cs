@@ -45,6 +45,7 @@ var host = new HostBuilder()
         services.AddHostedService<CommandProcessor>();
 
         services.AddModbusTcp(context.Configuration);  // Modbus TCP 서비스 등록
+        services.AddEquipmentServices();
         services.AddHostedService<ModbusPollingWorker>(); // 코일 읽기 Worker
         services.AddHostedService<ModbusWriteTestWorker>(); // 코일 쓰기 Worker
     })
