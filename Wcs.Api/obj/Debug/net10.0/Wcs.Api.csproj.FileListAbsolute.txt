@@ -69,3 +69,5 @@ D:\wcs-project-1\Wcs.Api\bin\Debug\net10.0\Wcs.Domain.pdb
 D:\wcs-project-1\Wcs.Api\obj\Debug\net10.0\Wcs.Api.csproj.AssemblyReference.cache
 D:\wcs-project-1\Wcs.Api\obj\Debug\net10.0\Wcs.Api.MvcApplicationPartsAssemblyInfo.cs
 D:\wcs-project-1\Wcs.Api\obj\Debug\net10.0\Wcs.Api.csproj.Up2Date
+D:\wcs-project-1\Wcs.Api\bin\Debug\net10.0\NModbus.dll
+D:\wcs-project-1\Wcs.Api\obj\Debug\net10.0\Wcs.Api.sourcelink.json

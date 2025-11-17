@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Wcs.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54e06f133cf55b2e73dec39693072dbb39e6c5cd")]
 [assembly: System.Reflection.AssemblyProductAttribute("Wcs.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Wcs.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

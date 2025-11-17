@@ -26,3 +26,4 @@ D:\wcs-project-1\Wcs.Simulator\obj\Debug\net10.0\refint\Wcs.Simulator.dll
 D:\wcs-project-1\Wcs.Simulator\obj\Debug\net10.0\Wcs.Simulator.pdb
 D:\wcs-project-1\Wcs.Simulator\obj\Debug\net10.0\Wcs.Simulator.genruntimeconfig.cache
 D:\wcs-project-1\Wcs.Simulator\obj\Debug\net10.0\ref\Wcs.Simulator.dll
+D:\wcs-project-1\Wcs.Simulator\obj\Debug\net10.0\Wcs.Simulator.sourcelink.json

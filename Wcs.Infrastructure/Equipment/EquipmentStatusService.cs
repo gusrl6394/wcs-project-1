@@ -27,8 +27,8 @@ namespace Wcs.Infrastructure.Services
     {
         private readonly ILogger<EquipmentStatusService> _logger;
         private readonly IFieldTagRepository _fieldTagRepository;
-        private readonly IEquipmentRepository _equipmentRepository;
-
+        // private readonly IEquipmentRepository _equipmentRepository;
+        /*
         public EquipmentStatusService(
             ILogger<EquipmentStatusService> logger,
             IFieldTagRepository fieldTagRepository,
@@ -38,19 +38,42 @@ namespace Wcs.Infrastructure.Services
             _fieldTagRepository = fieldTagRepository;
             _equipmentRepository = equipmentRepository;
         }
+        */
+        public EquipmentStatusService(
+            ILogger<EquipmentStatusService> logger,
+            IFieldTagRepository fieldTagRepository)
+        {
+            _logger = logger;
+            _fieldTagRepository = fieldTagRepository;
+        }
 
-        public async Task UpdateFromFieldAsync(
+        public Task UpdateFromFieldAsync(
             string deviceId,
             IReadOnlyDictionary<string, object?> tagValues,
             CancellationToken ct = default)
         {
-            if (tagValues == null || tagValues.Count == 0)
+            // if (tagValues == null || tagValues.Count == 0)
+            // {
+            //     _logger.LogDebug(
+            //         "UpdateFromFieldAsync 호출됐지만 tagValues가 비어 있습니다. deviceId={DeviceId}", deviceId);
+            //     return;
+            // }
+
+            foreach (var kv in tagValues)
             {
-                _logger.LogDebug(
-                    "UpdateFromFieldAsync 호출됐지만 tagValues가 비어 있습니다. deviceId={DeviceId}", deviceId);
-                return;
+                var tagId = kv.Key;
+                var value = kv.Value;
+
+                _logger.LogInformation(
+                    "[EQUIP][{DeviceId}] Tag {TagId} = {Value}",
+                    deviceId,
+                    tagId,
+                    value);
             }
 
+            return Task.CompletedTask;
+
+            /*
             // 1) 해당 deviceId + Input + tagValues에 포함된 태그만 필터
             var allTags = await _fieldTagRepository.GetAllAsync(ct);
 
@@ -118,6 +141,7 @@ namespace Wcs.Infrastructure.Services
                     await _equipmentRepository.SaveAsync(equipment, ct);
                 }
             }
+            */
         }
 
         private bool TryApplyProperty(
