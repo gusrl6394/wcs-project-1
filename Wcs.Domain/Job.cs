@@ -1,4 +1,4 @@
-namespace Wcs.Domain;
+﻿namespace Wcs.Domain;
 
 public enum JobState { Scheduled, Dispatched, Running, Succeeded, Failed }
 

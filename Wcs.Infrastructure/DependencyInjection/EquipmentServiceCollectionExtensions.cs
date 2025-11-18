@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Wcs.Domain.Equipment;
 using Wcs.Infrastructure.Equipment;
 

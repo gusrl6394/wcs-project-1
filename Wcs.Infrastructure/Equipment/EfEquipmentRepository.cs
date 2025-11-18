@@ -1,4 +1,4 @@
-// 경로: Wcs.Infrastructure/Equipment/EfEquipmentRepository.cs
+﻿// 경로: Wcs.Infrastructure/Equipment/EfEquipmentRepository.cs
 
 using System.Threading;
 using System.Threading.Tasks;

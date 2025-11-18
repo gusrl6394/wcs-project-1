@@ -1,4 +1,4 @@
-namespace Wcs.Domain.Field
+﻿namespace Wcs.Domain.Field
 {
     public interface IFieldBusChannel : IAsyncDisposable
     {

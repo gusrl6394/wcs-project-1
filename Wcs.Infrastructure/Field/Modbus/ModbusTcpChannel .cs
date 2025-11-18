@@ -1,4 +1,4 @@
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Threading;
 using NModbus;
 using Wcs.Domain.Field;

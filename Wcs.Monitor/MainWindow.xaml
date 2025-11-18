@@ -1,0 +1,103 @@
+﻿<Window x:Class="Wcs.Monitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Wcs.Monitor"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <!-- 상태별 행 색상 스타일 -->
+        <Style x:Key="StatusRowStyle" TargetType="DataGridRow">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Fault">
+                    <Setter Property="Background" Value="#FFFFD0D0"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Running">
+                    <Setter Property="Background" Value="#FFDFFFD0"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>            <!-- 연결 / 주소 / 버튼 -->
+            <RowDefinition Height="Auto"/>            <!-- 조회 중... -->
+            <RowDefinition Height="*"/>            <!-- DataGrid -->
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: 연결 / 연결중 / 연결 끊기 / 새로고침 -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
+            <TextBlock Text="WCS API 주소:" VerticalAlignment="Center"/>
+
+            <TextBox Width="300"
+                 Margin="5,0,5,0"
+                 VerticalAlignment="Center"
+                 Text="{Binding ApiBaseAddress, UpdateSourceTrigger=PropertyChanged}"/>
+
+            <!-- 아직 연결 안 됐을 때: 연결 버튼 -->
+            <Button Content="연결"
+                Width="80"
+                Margin="0,0,5,0"
+                Command="{Binding ConnectCommand}"
+                Visibility="{Binding IsConnected, Converter={StaticResource InverseBoolToVis}}"/>
+
+            <!-- 연결 중일 때: 상태 표시 -->
+            <TextBlock Text="연결중"
+                   Margin="0,0,5,0"
+                   VerticalAlignment="Center"
+                   Foreground="Green"
+                   FontWeight="Bold"
+                   Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- 연결 끊기 버튼 (연결 상태에서만 보임) -->
+            <Button Content="연결 끊기"
+                Width="80"
+                Margin="0,0,5,0"
+                Command="{Binding DisconnectCommand}"
+                Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- 새로고침 (연결 상태 + CanExecute에 따라 활성/비활성) -->
+            <Button Content="새로고침"
+                Width="80"
+                Command="{Binding RefreshCommand}"/>
+        </StackPanel>
+
+        <!-- Busy 상태 표시 (XAML로 바인딩) -->
+        <TextBlock Grid.Row="1"
+                   Margin="0,0,0,5"
+                   Text="조회 중..."
+                   Foreground="Gray"
+                   FontStyle="Italic"
+                   Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+
+        <!-- 설비 상태 리스트 DataGrid -->
+        <DataGrid Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  ItemsSource="{Binding Statuses}"
+                  RowStyle="{StaticResource StatusRowStyle}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID"
+                                    Binding="{Binding EquipmentId}"
+                                    Width="*"/>
+                <DataGridTextColumn Header="이름"
+                                    Binding="{Binding Name}"
+                                    Width="2*"/>
+                <DataGridTextColumn Header="상태"
+                                    Binding="{Binding Status}"
+                                    Width="*"/>
+                <DataGridTextColumn Header="알람코드"
+                                    Binding="{Binding AlarmCode}"
+                                    Width="*"/>
+                <DataGridTextColumn Header="최종 갱신"
+                    Width="2*"
+                    Binding="{Binding LastUpdated, StringFormat='yyyy-MM-dd HH:mm:ss'}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

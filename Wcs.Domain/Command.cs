@@ -1,4 +1,4 @@
-namespace Wcs.Domain;
+﻿namespace Wcs.Domain;
 
 public enum CommandState { Pending, Sent, Acked, Failed }
 

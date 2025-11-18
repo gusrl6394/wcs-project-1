@@ -1,4 +1,4 @@
-using Wcs.Domain;
+﻿using Wcs.Domain;
 
 namespace Wcs.Infrastructure;
 

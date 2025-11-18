@@ -1,4 +1,4 @@
-namespace Wcs.Domain.Field
+﻿namespace Wcs.Domain.Field
 {
     // 설비 자체 (Device/Equipment)
     public class FieldDevice

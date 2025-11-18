@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 /*
  - 실제 WCS 도메인이 보는 “설비 상태”를 표현

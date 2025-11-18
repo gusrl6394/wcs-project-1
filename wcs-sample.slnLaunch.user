@@ -1,0 +1,22 @@
+[
+  {
+    "Name": "새 프로필",
+    "Projects": [
+      {
+        "Path": "Wcs.Api\\Wcs.Api.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Wcs.Workers\\Wcs.Workers.csproj",
+        "Action": "Start",
+        "DebugTarget": "Wcs.Workers"
+      },
+      {
+        "Path": "Wcs.Monitor\\Wcs.Monitor.csproj",
+        "Action": "Start",
+        "DebugTarget": "Wcs.Monitor"
+      }
+    ]
+  }
+]

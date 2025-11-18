@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Wcs.Domain;
 using Wcs.Domain.Field;
 using Wcs.Domain.Equipment;
