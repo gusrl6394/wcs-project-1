@@ -15,6 +15,7 @@ namespace Wcs.Monitor.Services
 
         // 실제 API 라우팅에 맞게 수정
         private const string StatusEndpoint = "/api/equipment-status";
+        private const string TemperatureEndpoint = "/api/temperature";
 
         public WcsApiClient(string baseAddress)
         {
@@ -30,6 +31,15 @@ namespace Wcs.Monitor.Services
             var result = await _httpClient.GetFromJsonAsync<List<EquipmentStatusDto>>(
                 StatusEndpoint, cancellationToken);
             return result ?? new List<EquipmentStatusDto>();
+        }
+
+        public async Task<IReadOnlyList<TemperatureReadingDto>> GetTemperatureReadingsAsync(
+            int count = 10,
+            CancellationToken cancellationToken = default)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<TemperatureReadingDto>>(
+                $"{TemperatureEndpoint}?count={count}", cancellationToken);
+            return result ?? new List<TemperatureReadingDto>();
         }
 
         public void Dispose()

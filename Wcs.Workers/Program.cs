@@ -48,6 +48,18 @@ var host = new HostBuilder()
         services.AddHostedService<ModbusPollingWorker>(); // 코일 읽기 Worker
         services.AddHostedService<ModbusWriteTestWorker>(); // 코일 쓰기 Worker
         services.AddFieldTags(); // FieldTag 관련 서비스 등록
+        services.AddTemperatureServices(); // TemperatureRepository 관련 서비스 등록
+        services.AddHostedService<TemperaturePollingWorker>(); // 온도 센서 폴링 워커
+
+        // Temperature Sensor 통신을 위한 HttpClient 등록
+        services.AddHttpClient("TemperatureSensorClient", client =>
+        {
+            client.BaseAddress = new Uri(context.Configuration["TemperatureSensor:BaseUrl"] ?? "http://localhost:5000");
+        });
+
+        // Temperature Sensor 옵션 바인딩
+        services.AddOptions<TemperatureSensorOptions>()
+                .Bind(context.Configuration.GetSection("TemperatureSensor"));
     })
     .ConfigureLogging(lb => lb.AddSimpleConsole(o => o.TimestampFormat = "HH:mm:ss ")) // 콘솔 로그 포맷
     .UseConsoleLifetime() // Ctrl+C 종료 처리

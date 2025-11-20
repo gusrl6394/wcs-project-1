@@ -17,10 +17,20 @@ namespace Wcs.Infrastructure.Persistence
         public DbSet<Command> Commands { get; set; } = default!;
         public DbSet<FieldTag> FieldTags { get; set; } = default!;
         public DbSet<EquipmentEntity> Equipments { get; set; } = default!;
+        public DbSet<TemperatureReading> TemperatureReadings { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TemperatureReading>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.Property(x => x.SensorId).IsRequired();
+                e.Property(x => x.Value).IsRequired();
+                e.Property(x => x.Timestamp).IsRequired();
+                e.HasIndex(x => x.Timestamp); // Index for faster time-based queries
+            });
 
             modelBuilder.Entity<Job>(e =>
             {

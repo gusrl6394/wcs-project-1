@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading; // Added for DispatcherTimer
 using Wcs.Monitor.Models;
 using Wcs.Monitor.Services;
 
@@ -15,9 +16,13 @@ namespace Wcs.Monitor.ViewModels
         private string _apiBaseAddress = "http://localhost:5000";
         private bool _isBusy;
         private bool _isConnected;
+        private DispatcherTimer _temperatureTimer; // Added
 
         public ObservableCollection<EquipmentStatusDto> Statuses { get; } =
             new ObservableCollection<EquipmentStatusDto>();
+
+        public ObservableCollection<TemperatureReadingDto> Temperatures { get; } =
+            new ObservableCollection<TemperatureReadingDto>();
 
         public string ApiBaseAddress
         {
@@ -78,6 +83,11 @@ namespace Wcs.Monitor.ViewModels
                 async _ => await LoadDataAsync(),
                 _ => !IsBusy && IsConnected);
 
+            // Initialize the timer
+            _temperatureTimer = new DispatcherTimer();
+            _temperatureTimer.Interval = TimeSpan.FromSeconds(3); // Poll every 3 seconds
+            _temperatureTimer.Tick += async (s, e) => await LoadTemperatureDataAsync();
+
             // 자동으로 시작할 때 연결하고 싶으면 주석 해제
             // _ = ConnectAsync();
         }
@@ -106,6 +116,7 @@ namespace Wcs.Monitor.ViewModels
                 }
 
                 IsConnected = true;
+                _temperatureTimer.Start(); // Start the timer on connect
             }
             catch (Exception ex)
             {
@@ -126,8 +137,10 @@ namespace Wcs.Monitor.ViewModels
         private void Disconnect()
         {
             IsConnected = false;
+            _temperatureTimer.Stop(); // Stop the timer on disconnect
             // 연결 끊을 때 화면도 비우고 싶으면 주석 해제
             // Statuses.Clear();
+            // Temperatures.Clear(); // Clear temperatures on disconnect
         }
 
         private async Task LoadDataAsync()
@@ -158,6 +171,8 @@ namespace Wcs.Monitor.ViewModels
                     {
                         Statuses.Add(item);
                     }
+                    // Also load temperature data when refreshing
+                    await LoadTemperatureDataAsync();
                 }
             }
             catch (Exception ex)
@@ -173,6 +188,38 @@ namespace Wcs.Monitor.ViewModels
                 IsBusy = false;
             }
         }
+
+        // New method to load temperature data
+        private async Task LoadTemperatureDataAsync()
+        {
+            if (!IsConnected || string.IsNullOrWhiteSpace(ApiBaseAddress))
+            {
+                return;
+            }
+
+            try
+            {
+                using (var client = new WcsApiClient(ApiBaseAddress))
+                {
+                    var readings = await client.GetTemperatureReadingsAsync(10); // Get last 10 readings
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Temperatures.Clear();
+                        foreach (var item in readings)
+                        {
+                            Temperatures.Add(item);
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or display error without interrupting the periodic update
+                Console.WriteLine($"Error loading temperature data: {ex.Message}");
+            }
+        }
+
 
         private void RaiseAllCanExecuteChanged()
         {

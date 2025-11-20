@@ -1,4 +1,4 @@
-/*
+﻿/*
 // ★ 여기 하드 코딩 부분
 var coils = await _channel.ReadCoilsAsync(slaveId, startAddress, points, stoppingToken);
 
