@@ -23,20 +23,8 @@ var host = new HostBuilder()
     // DI 컨테이너에 서비스 등록
     .ConfigureServices((context, services) =>
     {
-        // 1) 기존 DbContext: API용 app.db (CommandProcessor에서 사용)
-        // DI 등록들…
-        // DbContext: API와 같은 SQLite 파일을 보도록 경로를 ../Wcs.Api/app.db로 지정.
-        services.AddDbContext<AppDbContext>(opt =>
-            opt.UseSqlite(context.Configuration.GetConnectionString("db") ?? "Data Source=../Wcs.Api/app.db"));
-
-        // 2) ★ 새 DbContext: Worker용 wcs.db (FieldTags, Commands 등)
         services.AddDbContext<WcsDbContext>(opt =>
-        {
-            // 디자인 타임 팩토리(WcsDbContextFactory)랑 동일하게 맞춤
-            // dotnet ef 쓸 때도 "Data Source=wcs.db" 로 wcs.db 를 생성했으니까
-            // runtime에서도 그대로 사용
-            opt.UseSqlite("Data Source=wcs.db");
-        });
+            opt.UseSqlite(context.Configuration.GetConnectionString("db")));
 
         // 리포지토리: ICommandRepository를 워커에서 사용(대기 중 명령 조회/저장).
         services.AddScoped<ICommandRepository, CommandRepository>();
@@ -97,7 +85,7 @@ public sealed class CommandProcessor(IServiceProvider sp, IDeviceAdapter device,
         {
             using var scope = sp.CreateScope();
             var cmds = scope.ServiceProvider.GetRequiredService<ICommandRepository>();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<WcsDbContext>();
 
             var pending = cmds.QueryPending().Take(10).ToList();
             foreach (var c in pending)

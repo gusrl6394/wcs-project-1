@@ -12,18 +12,28 @@ namespace Wcs.Infrastructure.Persistence
         {
         }
 
-        // 이미 있을 엔티티들
+        // Entity sets
+        public DbSet<Job> Jobs { get; set; } = default!;
         public DbSet<Command> Commands { get; set; } = default!;
-
-        // ★ FieldTag DbSet 추가
         public DbSet<FieldTag> FieldTags { get; set; } = default!;
-
-        // ★ 설비 엔티티 DbSet 추가
         public DbSet<EquipmentEntity> Equipments { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Job>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.Property(x => x.PalletId).IsRequired();
+                e.HasIndex(x => new { x.PalletId, x.State });
+            });
+
+            modelBuilder.Entity<Command>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.HasIndex(x => new { x.State, x.CreatedAt });
+            });
 
             // ★ FieldTag 시드 데이터
             modelBuilder.Entity<FieldTag>().HasData(

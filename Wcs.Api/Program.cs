@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wcs.Domain;
 using Wcs.Infrastructure;
+using Wcs.Infrastructure.Persistence;
 
 // 서비스 등록 (의존성 주입 ,DI)
 // Minimal API 용 엔드포인트 탐색기 등록
@@ -10,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // SQLite DB 파일 경로 설정 및 DbContext 등록
-builder.Services.AddDbContext<AppDbContext>(opt =>
+builder.Services.AddDbContext<WcsDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("db") ?? "Data Source=app.db"));
 
 // Repository 를 Scoped(HTTP 요청당 1개 인스턴스 생성) 라이프사이클로 등록
@@ -27,7 +28,7 @@ app.UseSwaggerUI();
 // DB 파일 준비 * 실무에서는 Migration 사용 권장
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<WcsDbContext>();
     db.Database.EnsureCreated();
 }
 

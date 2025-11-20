@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wcs.Domain;
+using Wcs.Infrastructure.Persistence;
 
 namespace Wcs.Infrastructure;
 
@@ -20,7 +21,7 @@ public interface IJobRepository
     Task SaveChangesAsync(CancellationToken ct);
 }
 
-public class JobRepository(AppDbContext db) : IJobRepository
+public class JobRepository(WcsDbContext db) : IJobRepository
 {
     /*
         FindScheduledByPalletAsync: 지정 팔레트의 대기중(Scheduled) 작업 한 건 찾기
@@ -43,7 +44,7 @@ public interface ICommandRepository
 }
 
 // Command Repository Implementation
-public class CommandRepository(AppDbContext db) : ICommandRepository
+public class CommandRepository(WcsDbContext db) : ICommandRepository
 {
     /*
      QueryPending(): 아직 처리되지 않은 명령 스트림을 상위가 조합 가능한 LINQ로 가져가도록 IQueryable로 노출
